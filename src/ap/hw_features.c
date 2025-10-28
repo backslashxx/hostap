@@ -24,6 +24,10 @@
 #include "beacon.h"
 #include "hw_features.h"
 
+static void ieee80211n_do_nothing(struct hostapd_iface *iface)
+{
+	wpa_printf(MSG_DEBUG, "Scan finished!");
+}
 
 void hostapd_free_hw_features(struct hostapd_hw_modes *hw_features,
 			      size_t num_hw_features)
@@ -85,6 +89,29 @@ int hostapd_get_hw_features(struct hostapd_iface *iface)
 
 	if (hostapd_drv_none(hapd))
 		return -1;
+
+        // scan
+	struct wpa_driver_scan_params params;
+	int ret1;
+
+	os_memset(&params, 0, sizeof(params));
+	ret1 = hostapd_driver_scan(iface->bss[0], &params);
+
+        if (ret1 == -EBUSY) {
+                wpa_printf(MSG_ERROR,
+                           "Failed to request a scan of neighboring BSSes ret=%d (%s)!",
+                           ret1, strerror(-ret1));
+        }
+
+        if (ret1 == 0) {
+                iface->scan_cb = ieee80211n_do_nothing;
+                wpa_printf(MSG_DEBUG,
+                           "Sleeping...");
+                for (int i=0; i<110; i++) {
+                  usleep(100000);
+                }
+        }
+
 	modes = hostapd_get_hw_feature_data(hapd, &num_modes, &flags,
 					    &dfs_domain);
 	if (modes == NULL) {

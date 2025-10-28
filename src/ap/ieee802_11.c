@@ -7197,6 +7197,8 @@ u8 * hostapd_eid_txpower_envelope(struct hostapd_data *hapd, u8 *eid)
 	 */
 	chan = &mode->channels[i];
 	max_tx_power = chan->max_tx_power - local_pwr_constraint;
+	if (hapd->iconf->fakepwr > 0) 
+		max_tx_power = hapd->iconf->fakepwr;
 
 	/*
 	 * Local Maximum Transmit power is encoded as two's complement

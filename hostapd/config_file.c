@@ -2582,8 +2582,18 @@ static int hostapd_config_fill(struct hostapd_config *conf,
 			return 1;
 		}
 		os_memcpy(conf->country, pos, 2);
+		os_memcpy(conf->fakecc, pos, 2);
+	} else if (os_strcmp(buf, "fakepwr") == 0) {
+		int val = atoi(pos);
+		conf->fakepwr = val;
+	} else if (os_strcmp(buf, "fakecc") == 0) {
+		if (os_strlen(pos) == 2)
+			os_memcpy(conf->fakecc, pos, 2); 
+		else
+			wpa_printf(MSG_ERROR, "invalid fakecc, using country");
 	} else if (os_strcmp(buf, "country3") == 0) {
 		conf->country[2] = strtol(pos, NULL, 16);
+		conf->fakecc[2] = strtol(pos, NULL, 16);
 	} else if (os_strcmp(buf, "ieee80211d") == 0) {
 		conf->ieee80211d = atoi(pos);
 	} else if (os_strcmp(buf, "ieee80211h") == 0) {

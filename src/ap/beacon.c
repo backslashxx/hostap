@@ -198,16 +198,21 @@ static u8 * hostapd_eid_country_add(struct hostapd_data *hapd, u8 *pos,
 				    struct hostapd_channel_data *start,
 				    struct hostapd_channel_data *prev)
 {
+	int fakepwr;
 	if (end - pos < 3)
 		return pos;
 
+	fakepwr = hapd->iconf->fakepwr;
 	/* first channel number */
 	*pos++ = start->chan;
 	/* number of channels */
 	*pos++ = (prev->chan - start->chan) / chan_spacing + 1;
 	/* maximum transmit power level */
 	if (!is_6ghz_op_class(hapd->iconf->op_class))
-		*pos++ = start->max_tx_power;
+		if (fakepwr > 0) 
+			*pos++ = fakepwr; 
+		else
+			*pos++ = start->max_tx_power;
 	else
 		*pos++ = 0; /* Reserved when operating on the 6 GHz band */
 
@@ -269,7 +274,7 @@ static u8 * hostapd_eid_country(struct hostapd_data *hapd, u8 *eid,
 
 	*pos++ = WLAN_EID_COUNTRY;
 	pos++; /* length will be set later */
-	os_memcpy(pos, hapd->iconf->country, 3); /* e.g., 'US ' */
+	os_memcpy(pos, hapd->iconf->fakecc, 3); /* e.g., 'US ' */
 	pos += 3;
 
 	if (is_6ghz_op_class(hapd->iconf->op_class)) {

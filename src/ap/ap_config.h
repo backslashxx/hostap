@@ -1080,6 +1080,8 @@ struct hostapd_config {
 			  * 0x00..0x31: identifying IEEE 802.11 standard
 			  *	Annex E table (0x04 = global table)
 			  */
+	char fakecc[3];
+	int fakepwr;
 
 	int ieee80211d;
 
